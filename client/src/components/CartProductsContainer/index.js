@@ -1,14 +1,15 @@
-import React from "react";
-import "./style.less"
-import CartItem from "../CartItem"
-import { useSelector } from "react-redux";
+import React from 'react'
+import './style.less'
+import CartItem from '../CartItem'
 
-
-const ProductsContainer = () => {
-  const products = useSelector(state => state.cartProducts.products)
-
+const ProductsContainer = ({ products, isAuth, setCart }) => {
   const items = products.map(product =>
-    <CartItem product={product} key={product.itemNo} cartQuantity={product.cartQuantity}/>)
+    <CartItem
+      product={isAuth ? product.product : product}
+      key={isAuth ? product._id : product.itemNo}
+      cartQuantityDB={product.cartQuantity}
+      setCart={setCart}
+    />)
 
   return (
     <div>
@@ -24,7 +25,7 @@ const ProductsContainer = () => {
         {items}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ProductsContainer;
+export default ProductsContainer

@@ -2,12 +2,17 @@ import React from "react";
 import "./style.less";
 import {useSelector} from 'react-redux'
 
-const CartTotal = () => {
+const CartTotal = ({productsDB}) => {
   const productsLength = useSelector(state => state.cartProducts.products.length)
   const products = useSelector(state => state.cartProducts.products);
+  const isAuth = useSelector(state => state.user.isAuthenticated);
 
   const sumArray = []
-  products.forEach(item => sumArray.push(item.currentPrice * item.cartQuantity))
+  if(isAuth){
+    productsDB.forEach(item => sumArray.push(item.product.currentPrice * item.cartQuantity))
+  }else {
+    products.forEach(item => sumArray.push(item.currentPrice * item.cartQuantity))
+  }
   const totalMoney = Number(sumArray.reduce((a, b) => a + b, 0).toFixed(2))
   const shipment = 30
   return (
@@ -16,7 +21,7 @@ const CartTotal = () => {
       <div>
         <div className="cart-total-div">
           <div>
-            <span>{productsLength} item(s)</span>
+            <span>{isAuth? productsDB.length : productsLength} item(s)</span>
             <span>${totalMoney}</span>
           </div>
           <div>
