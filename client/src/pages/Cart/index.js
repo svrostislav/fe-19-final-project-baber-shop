@@ -19,10 +19,12 @@ const Cart = () => {
   const [cart, setCart] = useState([])
   const isAuth = useSelector(state => state.user.isAuthenticated)
   const products = useSelector(state => state.cartProducts.products)
+  console.log('here', products)
   const getProducts = async () => await axios.get(`${process.env.REACT_APP_API}/cart`)
+  // const createCart = async (cart) => await axios.post(`${process.env.REACT_APP_API}/cart`, cart)
   useEffect(() => {
     if (isAuth) {
-      getProducts().then(r => setCart(r.data.products))
+      getProducts().then(r => setCart(r.data.products)).catch(e => console.log('add an item,pal', e))
     }
 
   }, [isAuth])
@@ -30,7 +32,7 @@ const Cart = () => {
 
   return (
     <>
-      {!productsLength && !cart
+      {!productsLength && !cart.length
         ? <p>ooops, you have't added products yet</p>
         : <>
           <div className="cart-wrapper-div">

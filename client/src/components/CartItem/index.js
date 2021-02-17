@@ -4,7 +4,7 @@ import './style.less'
 import { PlusCircleFilled, MinusCircleFilled, DeleteFilled } from '@ant-design/icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteFromCart, increaseQuantity, decreaseQuantity } from '../../store/cartItem/actionCartItem'
-import axios from 'axios'
+import { decrease, increase, deleteProduct } from '../../functions/products/product'
 
 const CartItem = (props) => {
   const dispatch = useDispatch()
@@ -12,11 +12,27 @@ const CartItem = (props) => {
   const { setCart, cartQuantityDB } = props
   const [total, setTotal] = useState(0)
   const isAuth = useSelector(state => state.user.isAuthenticated)
-  const increase = async (product) => await axios.put(`${process.env.REACT_APP_API}/cart/${product}`)
-  const decrease = async (product) => await axios.delete(`${process.env.REACT_APP_API}/cart/product/${product}`)
-  const deleteProduct = async (product) => await axios.delete(`${process.env.REACT_APP_API}/cart/${product}`)
+
+  const riseQuantity = (_id) => {
+    if (isAuth) {
+      increase(_id).then(r => setCart(r.data.products))
+    } else {
+      dispatch(increaseQuantity(_id))
+    }
+  }
+  const downQuantity = (_id) => {
+    if (isAuth) {
+      decrease(_id).then(r => setCart(r.data.products))
+    } else {
+      dispatch(decreaseQuantity(_id))
+    }
+  }
   const deleteItem = (_id) => {
-    deleteProduct(_id).then(r => setCart(r.data.products))
+    if (isAuth) {
+      deleteProduct(_id).then(r => setCart(r.data.products))
+    } else {
+      dispatch(deleteFromCart(_id))
+    }
   }
   useEffect(() => {
     if (isAuth) {
@@ -43,26 +59,16 @@ const CartItem = (props) => {
         <div className="cart-item-price">{currentPrice}</div>
         <div className="cart-item-amount">
           <PlusCircleFilled
-            onClick={() => {
-              isAuth
-                ? increase(_id).then(r => setCart(r.data.products))
-                : dispatch(increaseQuantity(_id))
-            }}/>
+            onClick={() => riseQuantity(_id)}/>
           <span>{isAuth ? cartQuantityDB : cartQuantity}</span>
           {cartQuantity === 0
             ? <MinusCircleFilled/>
-            : <MinusCircleFilled onClick={() => {
-              isAuth
-                ? decrease(_id).then(r => setCart(r.data.products))
-                : dispatch(decreaseQuantity(_id))
-            }}/>
+            : <MinusCircleFilled onClick={() => downQuantity(_id)}/>
           }
         </div>
         <div className="cart-item-total">{total.toFixed(2)}</div>
         <div className="cart-item-basket-icon"
-             onClick={() => {
-               isAuth ? deleteItem(_id) : dispatch(deleteFromCart(_id))
-             }}>
+             onClick={() => deleteItem(_id)}>
           <DeleteFilled/>
         </div>
       </div>
